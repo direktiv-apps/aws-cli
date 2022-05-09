@@ -5,9 +5,10 @@ info:
   version: 1.0.0
   x-direktiv-meta:
     container: direktiv/aws-cli
-    maintainer: 
-    issues:
-    url:  
+    maintainer: |-
+      [direktiv.io](https://www.direktiv.io)
+    issues: https://github.com/direktiv-apps/aws-cli/issues
+    url: https://github.com/direktiv-apps/aws-cli  
     category: Unknown
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)

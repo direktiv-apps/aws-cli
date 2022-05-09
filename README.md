@@ -7,6 +7,9 @@ Execute AWS CLI commands from Direktiv.
 - #### Category: Unknown
 - #### Image: direktiv/aws-cli 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- #### Issue Tracking: https://github.com/direktiv-apps/aws-cli/issues
+- #### URL: https://github.com/direktiv-apps/aws-cli
+- #### Maintainer: [direktiv.io](https://www.direktiv.io)
 ---
 
 ## About aws-cli
