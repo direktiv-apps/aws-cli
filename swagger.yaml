@@ -1,0 +1,156 @@
+swagger: "2.0"
+info:
+  description: Execute AWS CLI commands from Direktiv.
+  title: aws-cli
+  version: 1.0.0
+  x-direktiv-meta:
+    container: direktiv/aws-cli
+    maintainer: 
+    issues:
+    url:  
+    category: Unknown
+    license: |-
+      [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+    long-description: |-
+      This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- http
+paths:
+  /: 
+    delete:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          description: |
+            On cancel Direktiv sends a DELETE request to
+            the action with id in the header
+      x-direktiv:
+        cancel: echo 'cancel {{ .DirektivActionID }}'
+      responses:
+        200:
+    post:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          description: |
+            direktiv action id is an UUID. 
+            For development it can be set to 'development'
+        - name: Direktiv-TempDir
+          in: header
+          type: string
+          description: |
+            direktiv temp dir is the working directory for that request
+            For development it can be set to e.g. '/tmp'
+        - name: body
+          description: The request body includes a list of AWS CLI commands.
+          in: body
+          schema:
+            type: object
+            required:
+              - access-key
+              - secret-key
+            properties:
+              access-key:
+                type: string
+                example: ABCABCABCDABCABCABCD
+                description: AWS access key.
+              secret-key:
+                type: string
+                example: Abcd45sa01234+ThIsIsSuPeRsEcReT
+                description: AWS secret key.
+              region:
+                type: string
+                description: Region the commands should be executed in.
+                default: us-east-1
+                example: eu-central-1
+              commands:
+                type: array
+                description: Array of AWS cli commands. Does NOT include 'aws'.
+                items:
+                  type: string
+                example:
+                  - ecr get-login-password
+                  - ec2 describe-instances
+      # direktiv code generation is configured here
+      x-direktiv-function: |-
+        functions:
+          - id: aws-cli
+            image: direktiv/aws-cli
+            type: knative-workflow
+      x-direktiv-examples:
+        - title: Basic
+          content: |-
+            - id: req
+                 type: action
+                 action:
+                   function: aws-cli
+                   secrets: ["awsacess", "awssecret"]
+                   input:
+                    access-key: jq(.secrets.awsacess)
+                    secret-key: jq(.secrets.awssecret)
+                    region: eu-central-1
+                    commands:
+                    - ec2 describe-instances
+                    - ecr get-login-password
+      x-direktiv:  
+        debug: true
+        cmds:
+        - action: foreach
+          loop: .Commands
+          exec: aws {{ .Item }}
+          continue: false
+          env:  
+            - AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}
+            - AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}
+            - AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}
+      x-direktiv-errors:
+        io.direktiv.command.error: Command execution failed
+        io.direktiv.output.error: Template error for output generation of the service
+        io.direktiv.ri.error: Can not create information object from request
+      responses:
+        200:
+          description: AWS CLI response.
+          schema:
+            type: object
+            properties:
+              output:
+                type: object
+                properties:
+                  result:
+                    additionalProperties: {}
+                  success:
+                    type: boolean
+            example: 
+              greeting: Hello YourName
+        default:
+          description: generic error response
+          headers:
+            Direktiv-ErrorCode:
+              type: string
+            Direktiv-ErrorMessage:
+              type: string
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  direktivFile:
+    type: object
+    x-go-type:
+      type: DirektivFile
+      import:
+        package: github.com/direktiv/apps/go/pkg/apps 
+  error:
+    type: object
+    required:
+      - errorCode
+      - errorMessage
+    properties:
+      errorCode:
+        type: string
+      errorMessage:
+        type: string
