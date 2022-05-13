@@ -16,7 +16,7 @@ import (
 // PostOKCode is the HTTP code returned for type PostOK
 const PostOKCode int = 200
 
-/*PostOK nice greeting
+/*PostOK AWS CLI response.
 
 swagger:response postOK
 */

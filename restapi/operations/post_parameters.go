@@ -45,7 +45,7 @@ type PostParams struct {
 	  In: header
 	*/
 	DirektivTempDir *string
-	/*
+	/*The request body includes a list of AWS CLI commands.
 	  In: body
 	*/
 	Body PostBody

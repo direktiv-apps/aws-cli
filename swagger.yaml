@@ -9,7 +9,7 @@ info:
       [direktiv.io](https://www.direktiv.io)
     issues: https://github.com/direktiv-apps/aws-cli/issues
     url: https://github.com/direktiv-apps/aws-cli  
-    category: Unknown
+    category: cloud
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
     long-description: |-
@@ -100,7 +100,6 @@ paths:
                     - ec2 describe-instances
                     - ecr get-login-password
       x-direktiv:  
-        debug: true
         cmds:
         - action: foreach
           loop: .Commands

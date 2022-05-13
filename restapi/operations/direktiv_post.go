@@ -3,7 +3,6 @@ package operations
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/direktiv/apps/go/pkg/apps"
@@ -42,7 +41,6 @@ type accParamsTemplate struct {
 }
 
 func PostDirektivHandle(params PostParams) middleware.Responder {
-	fmt.Printf("params in: %+v", params)
 	resp := &PostOKBody{}
 
 	var (
@@ -85,7 +83,6 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	err = resp.Validate(strfmt.Default)
 
 	if err != nil {
-		fmt.Printf("error parsing output template: %+v\n", err)
 		return generateError(outErr, err)
 	}
 
@@ -111,7 +108,6 @@ func runCommand0(ctx context.Context,
 			params,
 			params.Body.Commands[a],
 		}
-		fmt.Printf("object going in command template: %+v\n", ls)
 
 		cmd, err := templateString(`aws {{ .Item }}`, ls)
 		if err != nil {

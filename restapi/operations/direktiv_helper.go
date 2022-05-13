@@ -55,8 +55,6 @@ func deref(dd interface{}) interface{} {
 }
 
 func templateString(tmplIn string, data interface{}) (string, error) {
-	fmt.Printf("template to use: %+v\n", tmplIn)
-	fmt.Printf("data to use: %+v\n", data)
 
 	tmpl, err := template.New("base").Funcs(sprig.FuncMap()).Funcs(template.FuncMap{
 		"fileExists": fileExists,
@@ -64,17 +62,14 @@ func templateString(tmplIn string, data interface{}) (string, error) {
 		"file64":     file64,
 	}).Parse(tmplIn)
 	if err != nil {
-		fmt.Printf("template failed: %+v\n", err)
 		return "", err
 	}
 
 	var b bytes.Buffer
 	err = tmpl.Execute(&b, data)
 	if err != nil {
-		fmt.Printf("template failed: %+v\n", err)
 		return "", err
 	}
-	fmt.Printf("template output: %+v\n", html.UnescapeString(b.String()))
 
 	v := b.String()
 	if v == "<no value>" {
@@ -103,7 +98,6 @@ func convertTemplateToBool(template string, data interface{}, defaultValue bool)
 
 func runCmd(ctx context.Context, cmdString string, envs []string,
 	output string, silent, print bool, ri *apps.RequestInfo) (map[string]interface{}, error) {
-	fmt.Printf("evironment vars: %+v\n", envs)
 
 	ir := make(map[string]interface{})
 	ir[successKey] = false
@@ -144,8 +138,6 @@ func runCmd(ctx context.Context, cmdString string, envs []string,
 	cmd.Dir = ri.Dir()
 	cmd.Env = append(os.Environ(), envs...)
 
-	fmt.Printf("ENVIRON!!! %v", cmd.Env)
-
 	if print {
 		ri.Logger().Infof("running command %v", cmd)
 	}
@@ -163,7 +155,6 @@ func runCmd(ctx context.Context, cmdString string, envs []string,
 	// output check
 	b := o.Bytes()
 	if output != "" {
-		fmt.Printf("output set to: %s\n", output)
 		b, err = os.ReadFile(output)
 		if err != nil {
 			ir[resultKey] = err.Error()

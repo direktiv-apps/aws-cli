@@ -33,13 +33,13 @@ func init() {
     "title": "aws-cli",
     "version": "1.0.0",
     "x-direktiv-meta": {
-      "category": "Unknown",
+      "category": "cloud",
       "container": "direktiv/aws-cli",
-      "issues": null,
+      "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.",
-      "maintainer": null,
-      "url": null
+      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "url": "https://github.com/direktiv-apps/aws-cli"
     }
   },
   "paths": {
@@ -59,6 +59,7 @@ func init() {
             "in": "header"
           },
           {
+            "description": "The request body includes a list of AWS CLI commands.",
             "name": "body",
             "in": "body",
             "schema": {
@@ -101,7 +102,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "nice greeting",
+            "description": "AWS CLI response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -150,8 +151,7 @@ func init() {
               "exec": "aws {{ .Item }}",
               "loop": ".Commands"
             }
-          ],
-          "debug": true
+          ]
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -229,13 +229,13 @@ func init() {
     "title": "aws-cli",
     "version": "1.0.0",
     "x-direktiv-meta": {
-      "category": "Unknown",
+      "category": "cloud",
       "container": "direktiv/aws-cli",
-      "issues": null,
+      "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.",
-      "maintainer": null,
-      "url": null
+      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "url": "https://github.com/direktiv-apps/aws-cli"
     }
   },
   "paths": {
@@ -255,6 +255,7 @@ func init() {
             "in": "header"
           },
           {
+            "description": "The request body includes a list of AWS CLI commands.",
             "name": "body",
             "in": "body",
             "schema": {
@@ -297,7 +298,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "nice greeting",
+            "description": "AWS CLI response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -346,8 +347,7 @@ func init() {
               "exec": "aws {{ .Item }}",
               "loop": ".Commands"
             }
-          ],
-          "debug": true
+          ]
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
