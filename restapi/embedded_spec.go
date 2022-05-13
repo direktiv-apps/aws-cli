@@ -85,6 +85,12 @@ func init() {
                     "ec2 describe-instances"
                   ]
                 },
+                "continue": {
+                  "description": "If set to true all commands are getting executed and errors ignored.",
+                  "type": "boolean",
+                  "default": false,
+                  "example": true
+                },
                 "region": {
                   "description": "Region the commands should be executed in.",
                   "type": "string",
@@ -107,20 +113,36 @@ func init() {
               "type": "object",
               "properties": {
                 "output": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "additionalProperties": false
-                    },
-                    "success": {
-                      "type": "boolean"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "success",
+                      "result"
+                    ],
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false
+                      },
+                      "success": {
+                        "type": "boolean"
+                      }
                     }
                   }
                 }
-              },
-              "example": {
-                "greeting": "Hello YourName"
               }
+            },
+            "examples": {
+              "output": [
+                {
+                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                  "success": true
+                },
+                {
+                  "result": "exit status 254",
+                  "success": false
+                }
+              ]
             }
           },
           "default": {
@@ -142,16 +164,18 @@ func init() {
           "cmds": [
             {
               "action": "foreach",
-              "continue": false,
+              "continue": "{{ .Body.Continue }}",
               "env": [
                 "AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}",
                 "AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}",
                 "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}"
               ],
               "exec": "aws {{ .Item }}",
-              "loop": ".Commands"
+              "loop": ".Commands",
+              "silent": true
             }
-          ]
+          ],
+          "output": "{\n  \"output\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -281,6 +305,12 @@ func init() {
                     "ec2 describe-instances"
                   ]
                 },
+                "continue": {
+                  "description": "If set to true all commands are getting executed and errors ignored.",
+                  "type": "boolean",
+                  "default": false,
+                  "example": true
+                },
                 "region": {
                   "description": "Region the commands should be executed in.",
                   "type": "string",
@@ -303,20 +333,24 @@ func init() {
               "type": "object",
               "properties": {
                 "output": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "additionalProperties": false
-                    },
-                    "success": {
-                      "type": "boolean"
-                    }
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/OutputItems0"
                   }
                 }
-              },
-              "example": {
-                "greeting": "Hello YourName"
               }
+            },
+            "examples": {
+              "output": [
+                {
+                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                  "success": true
+                },
+                {
+                  "result": "exit status 254",
+                  "success": false
+                }
+              ]
             }
           },
           "default": {
@@ -338,16 +372,18 @@ func init() {
           "cmds": [
             {
               "action": "foreach",
-              "continue": false,
+              "continue": "{{ .Body.Continue }}",
               "env": [
                 "AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}",
                 "AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}",
                 "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}"
               ],
               "exec": "aws {{ .Item }}",
-              "loop": ".Commands"
+              "loop": ".Commands",
+              "silent": true
             }
-          ]
+          ],
+          "output": "{\n  \"output\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -383,8 +419,12 @@ func init() {
     }
   },
   "definitions": {
-    "PostOKBodyOutput": {
+    "OutputItems0": {
       "type": "object",
+      "required": [
+        "success",
+        "result"
+      ],
       "properties": {
         "result": {
           "additionalProperties": false

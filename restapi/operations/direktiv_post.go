@@ -2,7 +2,6 @@ package operations
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 
 	"github.com/direktiv/apps/go/pkg/apps"
@@ -68,7 +67,9 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	ret, err = runCommand0(ctx, accParams, ri)
 	responses = append(responses, ret)
 
-	if err != nil && !false {
+	cont := convertTemplateToBool("{{ .Body.Continue }}", accParams, true)
+
+	if err != nil && !cont {
 		errName := cmdErr
 		return generateError(errName, err)
 	}
@@ -76,9 +77,17 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	paramsCollector = append(paramsCollector, ret)
 	accParams.Commands = paramsCollector
 
-	responseBytes, err := json.Marshal(responses)
-	// validate
+	s, err := templateString(`{
+  "output": {{ index . 0 | toJson }}
+}
+`, responses)
+	if err != nil {
+		return generateError(outErr, err)
+	}
 
+	responseBytes := []byte(s)
+
+	// validate
 	resp.UnmarshalBinary(responseBytes)
 	err = resp.Validate(strfmt.Default)
 
@@ -118,8 +127,9 @@ func runCommand0(ctx context.Context,
 			continue
 		}
 
-		silent := convertTemplateToBool("<no value>", ls, false)
+		silent := convertTemplateToBool("true", ls, false)
 		print := convertTemplateToBool("<no value>", ls, true)
+		cont := convertTemplateToBool("{{ .Body.Continue }}", ls, false)
 		output := ""
 
 		envs := []string{}
@@ -136,7 +146,13 @@ func runCommand0(ctx context.Context,
 			ir[successKey] = false
 			ir[resultKey] = err.Error()
 			cmds = append(cmds, ir)
-			continue
+
+			if cont {
+				continue
+			}
+
+			return cmds, err
+
 		}
 		cmds = append(cmds, r)
 

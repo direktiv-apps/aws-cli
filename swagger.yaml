@@ -70,6 +70,11 @@ paths:
                 description: Region the commands should be executed in.
                 default: us-east-1
                 example: eu-central-1
+              continue:
+                type: boolean
+                description: If set to true all commands are getting executed and errors ignored.
+                default: false
+                example: true
               commands:
                 type: array
                 description: Array of AWS cli commands. Does NOT include 'aws'.
@@ -104,30 +109,44 @@ paths:
         - action: foreach
           loop: .Commands
           exec: aws {{ .Item }}
-          continue: false
+          silent: true
+          continue: '{{ .Body.Continue }}'
           env:  
             - AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}
             - AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}
             - AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}
+        output: |
+          {
+            "output": {{ index . 0 | toJson }}
+          }
       x-direktiv-errors:
         io.direktiv.command.error: Command execution failed
         io.direktiv.output.error: Template error for output generation of the service
         io.direktiv.ri.error: Can not create information object from request
       responses:
         200:
+          examples: 
+            output:
+            - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
+              success: true
+            - result: exit status 254
+              success: false
           description: AWS CLI response.
           schema:
             type: object
             properties:
               output:
-                type: object
-                properties:
-                  result:
-                    additionalProperties: {}
-                  success:
-                    type: boolean
-            example: 
-              greeting: Hello YourName
+                type: array
+                items:
+                  type: object
+                  required:
+                  - success
+                  - result
+                  properties:
+                    success:
+                      type: boolean
+                    result:
+                      additionalProperties: {}
         default:
           description: generic error response
           headers:

@@ -8,6 +8,7 @@ package operations
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
@@ -73,6 +74,10 @@ type PostBody struct {
 	// Array of AWS cli commands. Does NOT include 'aws'.
 	// Example: ["ecr get-login-password","ec2 describe-instances"]
 	Commands []string `json:"commands"`
+
+	// If set to true all commands are getting executed and errors ignored.
+	// Example: true
+	Continue *bool `json:"continue,omitempty"`
 
 	// Region the commands should be executed in.
 	// Example: eu-central-1
@@ -144,13 +149,12 @@ func (o *PostBody) UnmarshalBinary(b []byte) error {
 }
 
 // PostOKBody post o k body
-// Example: {"greeting":"Hello YourName"}
 //
 // swagger:model PostOKBody
 type PostOKBody struct {
 
 	// output
-	Output *PostOKBodyOutput `json:"output,omitempty"`
+	Output []*PostOKBodyOutputItems0 `json:"output"`
 }
 
 // Validate validates this post o k body
@@ -172,15 +176,22 @@ func (o *PostOKBody) validateOutput(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if o.Output != nil {
-		if err := o.Output.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("postOK" + "." + "output")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("postOK" + "." + "output")
-			}
-			return err
+	for i := 0; i < len(o.Output); i++ {
+		if swag.IsZero(o.Output[i]) { // not required
+			continue
 		}
+
+		if o.Output[i] != nil {
+			if err := o.Output[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -202,15 +213,19 @@ func (o *PostOKBody) ContextValidate(ctx context.Context, formats strfmt.Registr
 
 func (o *PostOKBody) contextValidateOutput(ctx context.Context, formats strfmt.Registry) error {
 
-	if o.Output != nil {
-		if err := o.Output.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("postOK" + "." + "output")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("postOK" + "." + "output")
+	for i := 0; i < len(o.Output); i++ {
+
+		if o.Output[i] != nil {
+			if err := o.Output[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+				}
+				return err
 			}
-			return err
 		}
+
 	}
 
 	return nil
@@ -234,30 +249,63 @@ func (o *PostOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// PostOKBodyOutput post o k body output
+// PostOKBodyOutputItems0 post o k body output items0
 //
-// swagger:model PostOKBodyOutput
-type PostOKBodyOutput struct {
+// swagger:model PostOKBodyOutputItems0
+type PostOKBodyOutputItems0 struct {
 
 	// result
-	Result interface{} `json:"result,omitempty"`
+	// Required: true
+	Result interface{} `json:"result"`
 
 	// success
-	Success bool `json:"success,omitempty"`
+	// Required: true
+	Success *bool `json:"success"`
 }
 
-// Validate validates this post o k body output
-func (o *PostOKBodyOutput) Validate(formats strfmt.Registry) error {
+// Validate validates this post o k body output items0
+func (o *PostOKBodyOutputItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateResult(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSuccess(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this post o k body output based on context it is used
-func (o *PostOKBodyOutput) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (o *PostOKBodyOutputItems0) validateResult(formats strfmt.Registry) error {
+
+	if o.Result == nil {
+		return errors.Required("result", "body", nil)
+	}
+
+	return nil
+}
+
+func (o *PostOKBodyOutputItems0) validateSuccess(formats strfmt.Registry) error {
+
+	if err := validate.Required("success", "body", o.Success); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this post o k body output items0 based on context it is used
+func (o *PostOKBodyOutputItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PostOKBodyOutput) MarshalBinary() ([]byte, error) {
+func (o *PostOKBodyOutputItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -265,8 +313,8 @@ func (o *PostOKBodyOutput) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PostOKBodyOutput) UnmarshalBinary(b []byte) error {
-	var res PostOKBodyOutput
+func (o *PostOKBodyOutputItems0) UnmarshalBinary(b []byte) error {
+	var res PostOKBodyOutputItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -54,6 +54,20 @@ The request body includes a list of AWS CLI commands.
   
 
 [PostOKBody](#post-o-k-body)
+#### Example Reponses
+    
+```json
+[
+  {
+    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+    "success": true
+  },
+  {
+    "result": "exit status 254",
+    "success": false
+  }
+]
+```
 
 ### Errors
 | Type | Description
@@ -74,10 +88,10 @@ The request body includes a list of AWS CLI commands.
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| output | [PostOKBodyOutput](#post-o-k-body-output)| `PostOKBodyOutput` |  | |  |  |
+| output | [][PostOKBodyOutputItems](#post-o-k-body-output-items)| `[]*PostOKBodyOutputItems` |  | |  |  |
 
 
-#### <span id="post-o-k-body-output"></span> postOKBodyOutput
+#### <span id="post-o-k-body-output-items"></span> postOKBodyOutputItems
 
   
 
@@ -87,8 +101,8 @@ The request body includes a list of AWS CLI commands.
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| result | [interface{}](#interface)| `interface{}` |  | |  |  |
-| success | boolean| `bool` |  | |  |  |
+| result | [interface{}](#interface)| `interface{}` | ✓ | |  |  |
+| success | boolean| `bool` | ✓ | |  |  |
 
 
 #### <span id="post-params-body"></span> postParamsBody
@@ -103,6 +117,7 @@ The request body includes a list of AWS CLI commands.
 |------|------|---------|:--------:| ------- |-------------|---------|
 | access-key | string| `string` | ✓ | | AWS access key. | `ABCABCABCDABCABCABCD` |
 | commands | []string| `[]string` |  | | Array of AWS cli commands. Does NOT include 'aws'. | `["ecr get-login-password","ec2 describe-instances"]` |
+| continue | boolean| `bool` |  | | If set to true all commands are getting executed and errors ignored. | `true` |
 | region | string| `string` |  | `"us-east-1"`| Region the commands should be executed in. | `eu-central-1` |
 | secret-key | string| `string` | ✓ | | AWS secret key. | `Abcd45sa01234+ThIsIsSuPeRsEcReT` |
 
