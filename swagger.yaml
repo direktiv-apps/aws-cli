@@ -9,7 +9,9 @@ info:
       [direktiv.io](https://www.direktiv.io)
     issues: https://github.com/direktiv-apps/aws-cli/issues
     url: https://github.com/direktiv-apps/aws-cli  
-    category: cloud
+    categories: 
+    - cloud
+    - aws
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
     long-description: |-
