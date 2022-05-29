@@ -1,11 +1,11 @@
 
-# aws-cli 1.0.0
+# aws-cli 1.0
 
 Execute AWS CLI commands from Direktiv.
 
 ---
 - #### Categories: cloud, aws
-- #### Image: direktiv/aws-cli 
+- #### Image: gcr.io/direktiv/apps/aws-cli 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/aws-cli/issues
 - #### URL: https://github.com/direktiv-apps/aws-cli
@@ -21,7 +21,7 @@ This service excutes AWS CLI commands. All commands are getting executed in the 
   ```yaml
   functions:
   - id: aws-cli
-    image: direktiv/aws-cli
+    image: gcr.io/direktiv/apps/aws-cli:1.0
     type: knative-workflow
   ```
    #### Basic
@@ -36,8 +36,9 @@ This service excutes AWS CLI commands. All commands are getting executed in the 
         secret-key: jq(.secrets.awssecret)
         region: eu-central-1
         commands:
-        - ec2 describe-instances
-        - ecr get-login-password
+        - command: aws ec2 describe-instances
+          print: false
+        - command: aws ecr get-login-password
    ```
 
 ### Request
@@ -57,16 +58,18 @@ The request body includes a list of AWS CLI commands.
 #### Example Reponses
     
 ```json
-[
-  {
-    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
-    "success": true
-  },
-  {
-    "result": "exit status 254",
-    "success": false
-  }
-]
+{
+  "aws": [
+    {
+      "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+      "success": true
+    },
+    {
+      "result": "exit status 254",
+      "success": false
+    }
+  ]
+}
 ```
 
 ### Errors
@@ -88,10 +91,10 @@ The request body includes a list of AWS CLI commands.
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| output | [][PostOKBodyOutputItems](#post-o-k-body-output-items)| `[]*PostOKBodyOutputItems` |  | |  |  |
+| aws | [][PostOKBodyAwsItems](#post-o-k-body-aws-items)| `[]*PostOKBodyAwsItems` |  | |  |  |
 
 
-#### <span id="post-o-k-body-output-items"></span> postOKBodyOutputItems
+#### <span id="post-o-k-body-aws-items"></span> postOKBodyAwsItems
 
   
 
@@ -116,9 +119,25 @@ The request body includes a list of AWS CLI commands.
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | access-key | string| `string` | ✓ | | AWS access key. | `ABCABCABCDABCABCABCD` |
-| commands | []string| `[]string` |  | | Array of AWS cli commands. Does NOT include 'aws'. | `["ecr get-login-password","ec2 describe-instances"]` |
-| continue | boolean| `bool` |  | | If set to true all commands are getting executed and errors ignored. | `true` |
+| commands | [][PostParamsBodyCommandsItems](#post-params-body-commands-items)| `[]*PostParamsBodyCommandsItems` |  | | Array of commands. |  |
+| files | [][DirektivFile](#direktiv-file)| `[]apps.DirektivFile` |  | | File to create before running commands. |  |
 | region | string| `string` |  | `"us-east-1"`| Region the commands should be executed in. | `eu-central-1` |
 | secret-key | string| `string` | ✓ | | AWS secret key. | `Abcd45sa01234+ThIsIsSuPeRsEcReT` |
+
+
+#### <span id="post-params-body-commands-items"></span> postParamsBodyCommandsItems
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| command | string| `string` |  | | Command to run | `aws ecr get-login-password` |
+| continue | boolean| `bool` |  | |  |  |
+| print | boolean| `bool` |  | `true`| If set to false the command will not print the full command with arguments to logs. |  |
+| silent | boolean| `bool` |  | | If set to false the command will not print output to logs. |  |
 
  

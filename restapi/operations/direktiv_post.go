@@ -31,20 +31,23 @@ const (
 
 type accParams struct {
 	PostParams
-	Commands []interface{}
+	Commands    []interface{}
+	DirektivDir string
 }
 
 type accParamsTemplate struct {
 	PostBody
-	Commands []interface{}
+	Commands    []interface{}
+	DirektivDir string
 }
 
 func PostDirektivHandle(params PostParams) middleware.Responder {
 	resp := &PostOKBody{}
 
 	var (
-		err error
-		ret interface{}
+		err  error
+		ret  interface{}
+		cont bool
 	)
 
 	ri, err := apps.RequestinfoFromRequest(params.HTTPRequest)
@@ -62,12 +65,13 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	accParams := accParams{
 		params,
 		nil,
+		ri.Dir(),
 	}
 
 	ret, err = runCommand0(ctx, accParams, ri)
 	responses = append(responses, ret)
 
-	cont := convertTemplateToBool("{{ .Body.Continue }}", accParams, true)
+	// if foreach returns an error there is no continue
 
 	if err != nil && !cont {
 		errName := cmdErr
@@ -78,7 +82,7 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	accParams.Commands = paramsCollector
 
 	s, err := templateString(`{
-  "output": {{ index . 0 | toJson }}
+  "aws": {{ index . 0 | toJson }}
 }
 `, responses)
 	if err != nil {
@@ -101,7 +105,8 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 // foreach command
 type LoopStruct0 struct {
 	accParams
-	Item interface{}
+	Item        interface{}
+	DirektivDir string
 }
 
 func runCommand0(ctx context.Context,
@@ -116,9 +121,10 @@ func runCommand0(ctx context.Context,
 		ls := &LoopStruct0{
 			params,
 			params.Body.Commands[a],
+			params.DirektivDir,
 		}
 
-		cmd, err := templateString(`aws {{ .Item }}`, ls)
+		cmd, err := templateString(`{{ .Item.Command }}`, ls)
 		if err != nil {
 			ir := make(map[string]interface{})
 			ir[successKey] = false
@@ -127,9 +133,9 @@ func runCommand0(ctx context.Context,
 			continue
 		}
 
-		silent := convertTemplateToBool("true", ls, false)
-		print := convertTemplateToBool("<no value>", ls, true)
-		cont := convertTemplateToBool("{{ .Body.Continue }}", ls, false)
+		silent := convertTemplateToBool("{{ .Item.Silent }}", ls, false)
+		print := convertTemplateToBool("{{ .Item.Print }}", ls, true)
+		cont := convertTemplateToBool("{{ .Item.Continue }}", ls, false)
 		output := ""
 
 		envs := []string{}

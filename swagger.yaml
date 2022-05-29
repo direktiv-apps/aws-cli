@@ -2,9 +2,9 @@ swagger: "2.0"
 info:
   description: Execute AWS CLI commands from Direktiv.
   title: aws-cli
-  version: 1.0.0
+  version: "1.0"
   x-direktiv-meta:
-    container: direktiv/aws-cli
+    container: gcr.io/direktiv/apps/aws-cli
     maintainer: |-
       [direktiv.io](https://www.direktiv.io)
     issues: https://github.com/direktiv-apps/aws-cli/issues
@@ -72,24 +72,36 @@ paths:
                 description: Region the commands should be executed in.
                 default: us-east-1
                 example: eu-central-1
-              continue:
-                type: boolean
-                description: If set to true all commands are getting executed and errors ignored.
-                default: false
-                example: true
+              files:
+                type: array
+                items:
+                  $ref: '#/definitions/direktivFile'
+                description: File to create before running commands.
               commands:
                 type: array
-                description: Array of AWS cli commands. Does NOT include 'aws'.
+                description: Array of commands.
                 items:
-                  type: string
-                example:
-                  - ecr get-login-password
-                  - ec2 describe-instances
+                  type: object
+                  properties:
+                    command:
+                      type: string
+                      description: Command to run
+                      example: aws ecr get-login-password
+                    silent: 
+                      type: boolean
+                      description: If set to false the command will not print output to logs.
+                      default: false
+                    print: 
+                      type: boolean
+                      description: If set to false the command will not print the full command with arguments to logs.
+                      default: true
+                    continue: 
+                      type: boolean
       # direktiv code generation is configured here
       x-direktiv-function: |-
         functions:
           - id: aws-cli
-            image: direktiv/aws-cli
+            image: gcr.io/direktiv/apps/aws-cli:1.0
             type: knative-workflow
       x-direktiv-examples:
         - title: Basic
@@ -104,22 +116,24 @@ paths:
                     secret-key: jq(.secrets.awssecret)
                     region: eu-central-1
                     commands:
-                    - ec2 describe-instances
-                    - ecr get-login-password
+                    - command: aws ec2 describe-instances
+                      print: false
+                    - command: aws ecr get-login-password
       x-direktiv:  
         cmds:
         - action: foreach
           loop: .Commands
-          exec: aws {{ .Item }}
-          silent: true
-          continue: '{{ .Body.Continue }}'
+          exec: '{{ .Item.Command }}'
+          silent: '{{ .Item.Silent }}'
+          print: '{{ .Item.Print }}'
+          continue: '{{ .Item.Continue }}'
           env:  
             - AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}
             - AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}
             - AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}
         output: |
           {
-            "output": {{ index . 0 | toJson }}
+            "aws": {{ index . 0 | toJson }}
           }
       x-direktiv-errors:
         io.direktiv.command.error: Command execution failed
@@ -128,16 +142,17 @@ paths:
       responses:
         200:
           examples: 
-            output:
-            - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
-              success: true
-            - result: exit status 254
-              success: false
+            aws:
+              aws:
+              - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
+                success: true
+              - result: exit status 254
+                success: false
           description: AWS CLI response.
           schema:
             type: object
             properties:
-              output:
+              aws:
                 type: array
                 items:
                   type: object

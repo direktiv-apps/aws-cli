@@ -15,6 +15,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	"github.com/direktiv/apps/go/pkg/apps"
 )
 
 // PostHandlerFunc turns a function with the right signature into a post handler
@@ -71,13 +73,11 @@ type PostBody struct {
 	// Required: true
 	AccessKey *string `json:"access-key"`
 
-	// Array of AWS cli commands. Does NOT include 'aws'.
-	// Example: ["ecr get-login-password","ec2 describe-instances"]
-	Commands []string `json:"commands"`
+	// Array of commands.
+	Commands []*PostParamsBodyCommandsItems0 `json:"commands"`
 
-	// If set to true all commands are getting executed and errors ignored.
-	// Example: true
-	Continue *bool `json:"continue,omitempty"`
+	// File to create before running commands.
+	Files []apps.DirektivFile `json:"files"`
 
 	// Region the commands should be executed in.
 	// Example: eu-central-1
@@ -94,6 +94,14 @@ func (o *PostBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAccessKey(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCommands(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFiles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,6 +124,53 @@ func (o *PostBody) validateAccessKey(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *PostBody) validateCommands(formats strfmt.Registry) error {
+	if swag.IsZero(o.Commands) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Commands); i++ {
+		if swag.IsZero(o.Commands[i]) { // not required
+			continue
+		}
+
+		if o.Commands[i] != nil {
+			if err := o.Commands[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "commands" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "commands" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *PostBody) validateFiles(formats strfmt.Registry) error {
+	if swag.IsZero(o.Files) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Files); i++ {
+
+		if err := o.Files[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
+	return nil
+}
+
 func (o *PostBody) validateSecretKey(formats strfmt.Registry) error {
 
 	if err := validate.Required("body"+"."+"secret-key", "body", o.SecretKey); err != nil {
@@ -125,8 +180,59 @@ func (o *PostBody) validateSecretKey(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this post body based on context it is used
+// ContextValidate validate this post body based on the context it is used
 func (o *PostBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommands(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateFiles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PostBody) contextValidateCommands(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Commands); i++ {
+
+		if o.Commands[i] != nil {
+			if err := o.Commands[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "commands" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "commands" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *PostBody) contextValidateFiles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Files); i++ {
+
+		if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
 	return nil
 }
 
@@ -153,15 +259,15 @@ func (o *PostBody) UnmarshalBinary(b []byte) error {
 // swagger:model PostOKBody
 type PostOKBody struct {
 
-	// output
-	Output []*PostOKBodyOutputItems0 `json:"output"`
+	// aws
+	Aws []*PostOKBodyAwsItems0 `json:"aws"`
 }
 
 // Validate validates this post o k body
 func (o *PostOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateOutput(formats); err != nil {
+	if err := o.validateAws(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -171,22 +277,22 @@ func (o *PostOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PostOKBody) validateOutput(formats strfmt.Registry) error {
-	if swag.IsZero(o.Output) { // not required
+func (o *PostOKBody) validateAws(formats strfmt.Registry) error {
+	if swag.IsZero(o.Aws) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Output); i++ {
-		if swag.IsZero(o.Output[i]) { // not required
+	for i := 0; i < len(o.Aws); i++ {
+		if swag.IsZero(o.Aws[i]) { // not required
 			continue
 		}
 
-		if o.Output[i] != nil {
-			if err := o.Output[i].Validate(formats); err != nil {
+		if o.Aws[i] != nil {
+			if err := o.Aws[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+					return ve.ValidateName("postOK" + "." + "aws" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+					return ce.ValidateName("postOK" + "." + "aws" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -201,7 +307,7 @@ func (o *PostOKBody) validateOutput(formats strfmt.Registry) error {
 func (o *PostOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateOutput(ctx, formats); err != nil {
+	if err := o.contextValidateAws(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -211,16 +317,16 @@ func (o *PostOKBody) ContextValidate(ctx context.Context, formats strfmt.Registr
 	return nil
 }
 
-func (o *PostOKBody) contextValidateOutput(ctx context.Context, formats strfmt.Registry) error {
+func (o *PostOKBody) contextValidateAws(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(o.Output); i++ {
+	for i := 0; i < len(o.Aws); i++ {
 
-		if o.Output[i] != nil {
-			if err := o.Output[i].ContextValidate(ctx, formats); err != nil {
+		if o.Aws[i] != nil {
+			if err := o.Aws[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+					return ve.ValidateName("postOK" + "." + "aws" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("postOK" + "." + "output" + "." + strconv.Itoa(i))
+					return ce.ValidateName("postOK" + "." + "aws" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,10 +355,10 @@ func (o *PostOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// PostOKBodyOutputItems0 post o k body output items0
+// PostOKBodyAwsItems0 post o k body aws items0
 //
-// swagger:model PostOKBodyOutputItems0
-type PostOKBodyOutputItems0 struct {
+// swagger:model PostOKBodyAwsItems0
+type PostOKBodyAwsItems0 struct {
 
 	// result
 	// Required: true
@@ -263,8 +369,8 @@ type PostOKBodyOutputItems0 struct {
 	Success *bool `json:"success"`
 }
 
-// Validate validates this post o k body output items0
-func (o *PostOKBodyOutputItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this post o k body aws items0
+func (o *PostOKBodyAwsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateResult(formats); err != nil {
@@ -281,7 +387,7 @@ func (o *PostOKBodyOutputItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PostOKBodyOutputItems0) validateResult(formats strfmt.Registry) error {
+func (o *PostOKBodyAwsItems0) validateResult(formats strfmt.Registry) error {
 
 	if o.Result == nil {
 		return errors.Required("result", "body", nil)
@@ -290,7 +396,7 @@ func (o *PostOKBodyOutputItems0) validateResult(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PostOKBodyOutputItems0) validateSuccess(formats strfmt.Registry) error {
+func (o *PostOKBodyAwsItems0) validateSuccess(formats strfmt.Registry) error {
 
 	if err := validate.Required("success", "body", o.Success); err != nil {
 		return err
@@ -299,13 +405,13 @@ func (o *PostOKBodyOutputItems0) validateSuccess(formats strfmt.Registry) error 
 	return nil
 }
 
-// ContextValidate validates this post o k body output items0 based on context it is used
-func (o *PostOKBodyOutputItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this post o k body aws items0 based on context it is used
+func (o *PostOKBodyAwsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PostOKBodyOutputItems0) MarshalBinary() ([]byte, error) {
+func (o *PostOKBodyAwsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -313,8 +419,55 @@ func (o *PostOKBodyOutputItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PostOKBodyOutputItems0) UnmarshalBinary(b []byte) error {
-	var res PostOKBodyOutputItems0
+func (o *PostOKBodyAwsItems0) UnmarshalBinary(b []byte) error {
+	var res PostOKBodyAwsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+// PostParamsBodyCommandsItems0 post params body commands items0
+//
+// swagger:model PostParamsBodyCommandsItems0
+type PostParamsBodyCommandsItems0 struct {
+
+	// Command to run
+	// Example: aws ecr get-login-password
+	Command string `json:"command,omitempty"`
+
+	// continue
+	Continue bool `json:"continue,omitempty"`
+
+	// If set to false the command will not print the full command with arguments to logs.
+	Print *bool `json:"print,omitempty"`
+
+	// If set to false the command will not print output to logs.
+	Silent *bool `json:"silent,omitempty"`
+}
+
+// Validate validates this post params body commands items0
+func (o *PostParamsBodyCommandsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this post params body commands items0 based on context it is used
+func (o *PostParamsBodyCommandsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PostParamsBodyCommandsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PostParamsBodyCommandsItems0) UnmarshalBinary(b []byte) error {
+	var res PostParamsBodyCommandsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
