@@ -153,16 +153,18 @@ func init() {
               }
             },
             "examples": {
-              "aws": [
-                {
-                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
-                  "success": true
-                },
-                {
-                  "result": "exit status 254",
-                  "success": false
-                }
-              ]
+              "aws": {
+                "aws": [
+                  {
+                    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                    "success": true
+                  },
+                  {
+                    "result": "exit status 254",
+                    "success": false
+                  }
+                ]
+              }
             }
           },
           "default": {
@@ -209,7 +211,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: direktiv/aws-cli:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: gcr.io/direktiv/apps/aws-cli:1.0\n    type: knative-workflow"
       },
       "delete": {
         "parameters": [
@@ -362,16 +364,18 @@ func init() {
               }
             },
             "examples": {
-              "aws": [
-                {
-                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
-                  "success": true
-                },
-                {
-                  "result": "exit status 254",
-                  "success": false
-                }
-              ]
+              "aws": {
+                "aws": [
+                  {
+                    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                    "success": true
+                  },
+                  {
+                    "result": "exit status 254",
+                    "success": false
+                  }
+                ]
+              }
             }
           },
           "default": {
@@ -418,7 +422,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: direktiv/aws-cli:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: gcr.io/direktiv/apps/aws-cli:1.0\n    type: knative-workflow"
       },
       "delete": {
         "parameters": [
