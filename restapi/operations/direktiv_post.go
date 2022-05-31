@@ -2,6 +2,7 @@ package operations
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/direktiv/apps/go/pkg/apps"
@@ -41,6 +42,11 @@ type accParamsTemplate struct {
 	DirektivDir string
 }
 
+type ctxInfo struct {
+	cf        context.CancelFunc
+	cancelled bool
+}
+
 func PostDirektivHandle(params PostParams) middleware.Responder {
 	resp := &PostOKBody{}
 
@@ -56,8 +62,13 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	}
 
 	ctx, cancel := context.WithCancel(params.HTTPRequest.Context())
-	sm.Store(*params.DirektivActionID, cancel)
-	defer sm.Delete(params.DirektivActionID)
+
+	sm.Store(*params.DirektivActionID, &ctxInfo{
+		cancel,
+		false,
+	})
+
+	defer sm.Delete(*params.DirektivActionID)
 
 	var responses []interface{}
 
@@ -72,9 +83,22 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	responses = append(responses, ret)
 
 	// if foreach returns an error there is no continue
+	cont = false
 
 	if err != nil && !cont {
+
 		errName := cmdErr
+
+		// if the delete function added the cancel tag
+		ci, ok := sm.Load(*params.DirektivActionID)
+		if ok {
+			cinfo, ok := ci.(*ctxInfo)
+			if ok && cinfo.cancelled {
+				errName = "direktiv.actionCancelled"
+				err = fmt.Errorf("action got cancel request")
+			}
+		}
+
 		return generateError(errName, err)
 	}
 
