@@ -10,13 +10,15 @@ states:
     function: karate
     input:
       commands:
-      - command: java -DtestURL=jq(.host) -Daws-cliSecret=jq(.secrets.aws-cliSecret)
-          -jar /karate.jar test.feature
+      - command: java -DtestURL=jq(.host) -DawsAccess=jq(.secrets.awsAccess) -DawsSecret=jq(.secrets.awsSecret)
+          -DawsRegion=jq(.secrets.awsRegion) -jar /karate.jar test.feature
         print: false
       - command: cat target/karate-reports/karate-summary-json.txt
       logging: info
     secrets:
-    - aws-cliSecret
+    - awsAccess
+    - awsSecret
+    - awsRegion
     files:
     - key: test.feature
       scope: workflow

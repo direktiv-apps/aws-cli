@@ -29,17 +29,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Run aws-cli in Direktiv",
+    "description": "Amazon Web Service (AWS) command line interface",
     "title": "aws-cli",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "unknown"
+        "cloud",
+        "build"
       ],
       "container": "gcr.io/direktiv/apps/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "Run aws-cli in Direktiv as a function",
+      "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/aws-cli"
     }
@@ -217,7 +218,7 @@ func init() {
             "name": "awsSecret"
           },
           {
-            "description": "AWS region where the commands",
+            "description": "AWS region where the commands run",
             "name": "awsRegion"
           }
         ]
@@ -281,17 +282,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Run aws-cli in Direktiv",
+    "description": "Amazon Web Service (AWS) command line interface",
     "title": "aws-cli",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "unknown"
+        "cloud",
+        "build"
       ],
       "container": "gcr.io/direktiv/apps/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "Run aws-cli in Direktiv as a function",
+      "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/aws-cli"
     }
@@ -396,7 +398,7 @@ func init() {
             "name": "awsSecret"
           },
           {
-            "description": "AWS region where the commands",
+            "description": "AWS region where the commands run",
             "name": "awsRegion"
           }
         ]

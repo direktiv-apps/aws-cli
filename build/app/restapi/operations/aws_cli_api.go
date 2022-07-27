@@ -51,7 +51,7 @@ func NewAwsCliAPI(spec *loads.Document) *AwsCliAPI {
 	}
 }
 
-/*AwsCliAPI Run aws-cli in Direktiv */
+/*AwsCliAPI Amazon Web Service (AWS) command line interface */
 type AwsCliAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

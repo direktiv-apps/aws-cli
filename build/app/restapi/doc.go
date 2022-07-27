@@ -2,7 +2,7 @@
 
 // Package restapi aws-cli
 //
-//  Run aws-cli in Direktiv
+//  Amazon Web Service (AWS) command line interface
 //  Schemes:
 //    http
 //  Host: localhost
