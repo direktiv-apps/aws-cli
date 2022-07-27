@@ -2,7 +2,7 @@
 
 // Package restapi aws-cli
 //
-//  Execute AWS CLI commands from Direktiv.
+//  Run aws-cli in Direktiv
 //  Schemes:
 //    http
 //  Host: localhost

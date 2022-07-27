@@ -1,21 +1,28 @@
 swagger: "2.0"
 info:
-  description: Execute AWS CLI commands from Direktiv.
+  description: Amazon Web Service (AWS) command line interface
   title: aws-cli
   version: "1.0"
   x-direktiv-meta:
     container: gcr.io/direktiv/apps/aws-cli
     maintainer: |-
-      [direktiv.io](https://www.direktiv.io)
+      [direktiv.io](https://www.direktiv.io) 
     issues: https://github.com/direktiv-apps/aws-cli/issues
     url: https://github.com/direktiv-apps/aws-cli  
-    categories: 
+    categories:
     - cloud
-    - aws
+    - build
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
-    long-description: |-
-      This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.
+    long-description: >-
+      This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub. 
+      The following additional packages are installed:
+
+      - wget
+
+      - git
+
+      - curl
 consumes:
 - application/json
 produces:
@@ -41,23 +48,21 @@ paths:
         - name: Direktiv-ActionID
           in: header
           type: string
+          default: development
           description: |
             direktiv action id is an UUID. 
             For development it can be set to 'development'
         - name: Direktiv-TempDir
           in: header
           type: string
+          default: /tmp
           description: |
             direktiv temp dir is the working directory for that request
             For development it can be set to e.g. '/tmp'
         - name: body
-          description: The request body includes a list of AWS CLI commands.
           in: body
           schema:
             type: object
-            required:
-              - access-key
-              - secret-key
             properties:
               access-key:
                 type: string
@@ -86,7 +91,7 @@ paths:
                     command:
                       type: string
                       description: Command to run
-                      example: aws ecr get-login-password
+                      example: aws --version
                     silent: 
                       type: boolean
                       description: If set to false the command will not print output to logs.
@@ -97,28 +102,37 @@ paths:
                       default: true
                     continue: 
                       type: boolean
+                      description: Stops excecution if command fails, otherwise proceeds with next command 
       # direktiv code generation is configured here
       x-direktiv-function: |-
         functions:
-          - id: aws-cli
-            image: gcr.io/direktiv/apps/aws-cli:1.0
-            type: knative-workflow
+        - id: aws-cli
+          image: gcr.io/direktiv/apps/aws-cli:1.0
+          type: knative-workflow
       x-direktiv-examples:
+        # ADD MORE EXAMPLES HERE
         - title: Basic
           content: |-
-            - id: req
-                 type: action
-                 action:
-                   function: aws-cli
-                   secrets: ["awsacess", "awssecret"]
-                   input:
-                    access-key: jq(.secrets.awsacess)
-                    secret-key: jq(.secrets.awssecret)
-                    region: eu-central-1
-                    commands:
-                    - command: aws ec2 describe-instances
-                      print: false
-                    - command: aws ecr get-login-password
+            - id: aws-cli
+              type: action
+              action:
+                function: aws-cli
+                secrets: ["awsAccess", "awsSecret", "awsRegion"]
+                input: 
+                  access-key: jq(.secrets.awsAccess)
+                  secret-key: jq(.secrets.awsSecret)
+                  region: jq(.secrets.awsRegion)
+                  commands:
+                  - command: aws ec2 describe-instances
+                    print: false
+                  - command: aws ecr get-login-password
+      x-direktiv-secrets:
+        - name: awsAccess
+          description: AWS access key (IAM)
+        - name: awsSecret
+          description: AWS secret key (IAM)
+        - name: awsRegion
+          description: AWS region where the commands run
       x-direktiv:  
         cmds:
         - action: foreach
@@ -133,7 +147,7 @@ paths:
             - AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}
         output: |
           {
-            "aws": {{ index . 0 | toJson }}
+            "aws-cli": {{ index . 0 | toJson }}
           }
       x-direktiv-errors:
         io.direktiv.command.error: Command execution failed
@@ -141,18 +155,17 @@ paths:
         io.direktiv.ri.error: Can not create information object from request
       responses:
         200:
-          examples: 
-            aws:
-              aws:
-              - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
-                success: true
-              - result: exit status 254
-                success: false
-          description: AWS CLI response.
+          description: List of executed commands.
+          examples:
+            aws-cli:
+            - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
+              success: true
+            - result: exit status 254
+              success: false
           schema:
             type: object
             properties:
-              aws:
+              aws-cli:
                 type: array
                 items:
                   type: object

@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"aws-cli/models"
+	"app/models"
 )
 
 const (
@@ -37,7 +37,7 @@ type accParams struct {
 }
 
 type accParamsTemplate struct {
-	PostBody
+	models.PostParamsBody
 	Commands    []interface{}
 	DirektivDir string
 }
@@ -48,7 +48,7 @@ type ctxInfo struct {
 }
 
 func PostDirektivHandle(params PostParams) middleware.Responder {
-	resp := &PostOKBody{}
+	resp := &models.PostOKBody{}
 
 	var (
 		err  error
@@ -80,6 +80,7 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	}
 
 	ret, err = runCommand0(ctx, accParams, ri)
+
 	responses = append(responses, ret)
 
 	// if foreach returns an error there is no continue
@@ -106,7 +107,7 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	accParams.Commands = paramsCollector
 
 	s, err := templateString(`{
-  "aws": {{ index . 0 | toJson }}
+  "aws-cli": {{ index . 0 | toJson }}
 }
 `, responses)
 	if err != nil {
@@ -136,9 +137,11 @@ type LoopStruct0 struct {
 func runCommand0(ctx context.Context,
 	params accParams, ri *apps.RequestInfo) ([]map[string]interface{}, error) {
 
-	ri.Logger().Infof("foreach command over .Commands")
-
 	var cmds []map[string]interface{}
+
+	if params.Body == nil {
+		return cmds, nil
+	}
 
 	for a := range params.Body.Commands {
 

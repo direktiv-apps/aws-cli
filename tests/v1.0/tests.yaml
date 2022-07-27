@@ -1,0 +1,22 @@
+url: ""
+functions:
+- type: knative-workflow
+  id: aws-cli
+  image: gcr.io/direktiv/apps/aws-cli:test
+states:
+- id: state0
+  type: action
+  action:
+    function: aws-cli
+    input:
+      access-key: jq(.secrets.awsAccess)
+      commands:
+      - command: aws ec2 describe-instances
+        print: false
+      - command: aws ecr get-login-password
+      region: jq(.secrets.awsRegion)
+      secret-key: jq(.secrets.awsSecret)
+    secrets:
+    - awsAccess
+    - awsSecret
+    - awsRegion

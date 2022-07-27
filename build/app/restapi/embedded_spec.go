@@ -29,19 +29,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Execute AWS CLI commands from Direktiv.",
+    "description": "Run aws-cli in Direktiv",
     "title": "aws-cli",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "cloud",
-        "aws"
+        "unknown"
       ],
       "container": "gcr.io/direktiv/apps/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.",
-      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "long-description": "Run aws-cli in Direktiv as a function",
+      "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/aws-cli"
     }
   },
@@ -51,26 +50,23 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "default": "development",
             "description": "direktiv action id is an UUID. \nFor development it can be set to 'development'\n",
             "name": "Direktiv-ActionID",
             "in": "header"
           },
           {
             "type": "string",
+            "default": "/tmp",
             "description": "direktiv temp dir is the working directory for that request\nFor development it can be set to e.g. '/tmp'\n",
             "name": "Direktiv-TempDir",
             "in": "header"
           },
           {
-            "description": "The request body includes a list of AWS CLI commands.",
             "name": "body",
             "in": "body",
             "schema": {
               "type": "object",
-              "required": [
-                "access-key",
-                "secret-key"
-              ],
               "properties": {
                 "access-key": {
                   "description": "AWS access key.",
@@ -86,9 +82,10 @@ func init() {
                       "command": {
                         "description": "Command to run",
                         "type": "string",
-                        "example": "aws ecr get-login-password"
+                        "example": "aws --version"
                       },
                       "continue": {
+                        "description": "Stops excecution if command fails, otherwise proceeds with next command",
                         "type": "boolean"
                       },
                       "print": {
@@ -128,11 +125,11 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "AWS CLI response.",
+            "description": "List of executed commands.",
             "schema": {
               "type": "object",
               "properties": {
-                "aws": {
+                "aws-cli": {
                   "type": "array",
                   "items": {
                     "type": "object",
@@ -153,18 +150,16 @@ func init() {
               }
             },
             "examples": {
-              "aws": {
-                "aws": [
-                  {
-                    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
-                    "success": true
-                  },
-                  {
-                    "result": "exit status 254",
-                    "success": false
-                  }
-                ]
-              }
+              "aws-cli": [
+                {
+                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                  "success": true
+                },
+                {
+                  "result": "exit status 254",
+                  "success": false
+                }
+              ]
             }
           },
           "default": {
@@ -198,7 +193,7 @@ func init() {
               "silent": "{{ .Item.Silent }}"
             }
           ],
-          "output": "{\n  \"aws\": {{ index . 0 | toJson }}\n}\n"
+          "output": "{\n  \"aws-cli\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -207,11 +202,25 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: aws-cli\n       secrets: [\"awsacess\", \"awssecret\"]\n       input:\n        access-key: jq(.secrets.awsacess)\n        secret-key: jq(.secrets.awssecret)\n        region: eu-central-1\n        commands:\n        - command: aws ec2 describe-instances\n          print: false\n        - command: aws ecr get-login-password",
+            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances\n        print: false\n      - command: aws ecr get-login-password",
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: gcr.io/direktiv/apps/aws-cli:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/apps/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-secrets": [
+          {
+            "description": "AWS access key (IAM)",
+            "name": "awsAccess"
+          },
+          {
+            "description": "AWS secret key (IAM)",
+            "name": "awsSecret"
+          },
+          {
+            "description": "AWS region where the commands",
+            "name": "awsRegion"
+          }
+        ]
       },
       "delete": {
         "parameters": [
@@ -272,19 +281,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Execute AWS CLI commands from Direktiv.",
+    "description": "Run aws-cli in Direktiv",
     "title": "aws-cli",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "cloud",
-        "aws"
+        "unknown"
       ],
       "container": "gcr.io/direktiv/apps/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "This service excutes AWS CLI commands. All commands are getting executed in the specified region and return their results as JSON.",
-      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "long-description": "Run aws-cli in Direktiv as a function",
+      "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/aws-cli"
     }
   },
@@ -294,88 +302,43 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "default": "development",
             "description": "direktiv action id is an UUID. \nFor development it can be set to 'development'\n",
             "name": "Direktiv-ActionID",
             "in": "header"
           },
           {
             "type": "string",
+            "default": "/tmp",
             "description": "direktiv temp dir is the working directory for that request\nFor development it can be set to e.g. '/tmp'\n",
             "name": "Direktiv-TempDir",
             "in": "header"
           },
           {
-            "description": "The request body includes a list of AWS CLI commands.",
             "name": "body",
             "in": "body",
             "schema": {
-              "type": "object",
-              "required": [
-                "access-key",
-                "secret-key"
-              ],
-              "properties": {
-                "access-key": {
-                  "description": "AWS access key.",
-                  "type": "string",
-                  "example": "ABCABCABCDABCABCABCD"
-                },
-                "commands": {
-                  "description": "Array of commands.",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/CommandsItems0"
-                  }
-                },
-                "files": {
-                  "description": "File to create before running commands.",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/direktivFile"
-                  }
-                },
-                "region": {
-                  "description": "Region the commands should be executed in.",
-                  "type": "string",
-                  "default": "us-east-1",
-                  "example": "eu-central-1"
-                },
-                "secret-key": {
-                  "description": "AWS secret key.",
-                  "type": "string",
-                  "example": "Abcd45sa01234+ThIsIsSuPeRsEcReT"
-                }
-              }
+              "$ref": "#/definitions/postParamsBody"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "AWS CLI response.",
+            "description": "List of executed commands.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "aws": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/AwsItems0"
-                  }
-                }
-              }
+              "$ref": "#/definitions/postOKBody"
             },
             "examples": {
-              "aws": {
-                "aws": [
-                  {
-                    "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
-                    "success": true
-                  },
-                  {
-                    "result": "exit status 254",
-                    "success": false
-                  }
-                ]
-              }
+              "aws-cli": [
+                {
+                  "result": "VTQ3U....c2ZaN0FJaldjVnkra2tKV==",
+                  "success": true
+                },
+                {
+                  "result": "exit status 254",
+                  "success": false
+                }
+              ]
             }
           },
           "default": {
@@ -409,7 +372,7 @@ func init() {
               "silent": "{{ .Item.Silent }}"
             }
           ],
-          "output": "{\n  \"aws\": {{ index . 0 | toJson }}\n}\n"
+          "output": "{\n  \"aws-cli\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -418,11 +381,25 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: aws-cli\n       secrets: [\"awsacess\", \"awssecret\"]\n       input:\n        access-key: jq(.secrets.awsacess)\n        secret-key: jq(.secrets.awssecret)\n        region: eu-central-1\n        commands:\n        - command: aws ec2 describe-instances\n          print: false\n        - command: aws ecr get-login-password",
+            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances\n        print: false\n      - command: aws ecr get-login-password",
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: aws-cli\n    image: gcr.io/direktiv/apps/aws-cli:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/apps/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-secrets": [
+          {
+            "description": "AWS access key (IAM)",
+            "name": "awsAccess"
+          },
+          {
+            "description": "AWS secret key (IAM)",
+            "name": "awsSecret"
+          },
+          {
+            "description": "AWS region where the commands",
+            "name": "awsRegion"
+          }
+        ]
       },
       "delete": {
         "parameters": [
@@ -445,44 +422,6 @@ func init() {
     }
   },
   "definitions": {
-    "AwsItems0": {
-      "type": "object",
-      "required": [
-        "success",
-        "result"
-      ],
-      "properties": {
-        "result": {
-          "additionalProperties": false
-        },
-        "success": {
-          "type": "boolean"
-        }
-      }
-    },
-    "CommandsItems0": {
-      "type": "object",
-      "properties": {
-        "command": {
-          "description": "Command to run",
-          "type": "string",
-          "example": "aws ecr get-login-password"
-        },
-        "continue": {
-          "type": "boolean"
-        },
-        "print": {
-          "description": "If set to false the command will not print the full command with arguments to logs.",
-          "type": "boolean",
-          "default": true
-        },
-        "silent": {
-          "description": "If set to false the command will not print output to logs.",
-          "type": "boolean",
-          "default": false
-        }
-      }
-    },
     "direktivFile": {
       "type": "object",
       "x-go-type": {
@@ -506,6 +445,95 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "postOKBody": {
+      "type": "object",
+      "properties": {
+        "aws-cli": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/postOKBodyAwsCliItems"
+          }
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postOKBodyAwsCliItems": {
+      "type": "object",
+      "required": [
+        "success",
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "additionalProperties": false
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postParamsBody": {
+      "type": "object",
+      "properties": {
+        "access-key": {
+          "description": "AWS access key.",
+          "type": "string",
+          "example": "ABCABCABCDABCABCABCD"
+        },
+        "commands": {
+          "description": "Array of commands.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/postParamsBodyCommandsItems"
+          }
+        },
+        "files": {
+          "description": "File to create before running commands.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/direktivFile"
+          }
+        },
+        "region": {
+          "description": "Region the commands should be executed in.",
+          "type": "string",
+          "default": "us-east-1",
+          "example": "eu-central-1"
+        },
+        "secret-key": {
+          "description": "AWS secret key.",
+          "type": "string",
+          "example": "Abcd45sa01234+ThIsIsSuPeRsEcReT"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postParamsBodyCommandsItems": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "description": "Command to run",
+          "type": "string",
+          "example": "aws --version"
+        },
+        "continue": {
+          "description": "Stops excecution if command fails, otherwise proceeds with next command",
+          "type": "boolean"
+        },
+        "print": {
+          "description": "If set to false the command will not print the full command with arguments to logs.",
+          "type": "boolean",
+          "default": true
+        },
+        "silent": {
+          "description": "If set to false the command will not print output to logs.",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "x-go-gen-location": "operations"
     }
   }
 }`))
