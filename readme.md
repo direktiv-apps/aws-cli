@@ -40,8 +40,6 @@ functions:
       region: jq(.secrets.awsRegion)
       commands:
       - command: aws ec2 describe-instances
-        print: false
-      - command: aws ecr get-login-password
 ```
 
    ### Secrets

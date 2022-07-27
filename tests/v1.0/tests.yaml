@@ -12,8 +12,6 @@ states:
       access-key: jq(.secrets.awsAccess)
       commands:
       - command: aws ec2 describe-instances
-        print: false
-      - command: aws ecr get-login-password
       region: jq(.secrets.awsRegion)
       secret-key: jq(.secrets.awsSecret)
     secrets:

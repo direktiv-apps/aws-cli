@@ -124,8 +124,6 @@ paths:
                   region: jq(.secrets.awsRegion)
                   commands:
                   - command: aws ec2 describe-instances
-                    print: false
-                  - command: aws ecr get-login-password
       x-direktiv-secrets:
         - name: awsAccess
           description: AWS access key (IAM)

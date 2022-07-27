@@ -203,7 +203,7 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances\n        print: false\n      - command: aws ecr get-login-password",
+            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances",
             "title": "Basic"
           }
         ],
@@ -383,7 +383,7 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances\n        print: false\n      - command: aws ecr get-login-password",
+            "content": "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input: \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n      region: jq(.secrets.awsRegion)\n      commands:\n      - command: aws ec2 describe-instances",
             "title": "Basic"
           }
         ],
