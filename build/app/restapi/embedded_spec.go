@@ -37,7 +37,7 @@ func init() {
         "cloud",
         "build"
       ],
-      "container": "gcr.io/direktiv/apps/aws-cli",
+      "container": "direktiv.azurecr.io/functions/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
@@ -68,6 +68,10 @@ func init() {
             "in": "body",
             "schema": {
               "type": "object",
+              "required": [
+                "access-key",
+                "secret-key"
+              ],
               "properties": {
                 "access-key": {
                   "description": "AWS access key.",
@@ -186,7 +190,8 @@ func init() {
               "env": [
                 "AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}",
                 "AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}",
-                "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}"
+                "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}",
+                "AWS_DEFAULT_OUTPUT=json"
               ],
               "exec": "{{ .Item.Command }}",
               "loop": ".Commands",
@@ -207,7 +212,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/apps/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: direktiv.azurecr.io/functions/aws-cli:1.0\n  type: knative-workflow",
         "x-direktiv-secrets": [
           {
             "description": "AWS access key (IAM)",
@@ -290,7 +295,7 @@ func init() {
         "cloud",
         "build"
       ],
-      "container": "gcr.io/direktiv/apps/aws-cli",
+      "container": "direktiv.azurecr.io/functions/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
@@ -366,7 +371,8 @@ func init() {
               "env": [
                 "AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}",
                 "AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}",
-                "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}"
+                "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}",
+                "AWS_DEFAULT_OUTPUT=json"
               ],
               "exec": "{{ .Item.Command }}",
               "loop": ".Commands",
@@ -387,7 +393,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/apps/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: direktiv.azurecr.io/functions/aws-cli:1.0\n  type: knative-workflow",
         "x-direktiv-secrets": [
           {
             "description": "AWS access key (IAM)",
@@ -478,6 +484,10 @@ func init() {
     },
     "postParamsBody": {
       "type": "object",
+      "required": [
+        "access-key",
+        "secret-key"
+      ],
       "properties": {
         "access-key": {
           "description": "AWS access key.",

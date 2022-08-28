@@ -84,7 +84,9 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	responses = append(responses, ret)
 
 	// if foreach returns an error there is no continue
-	cont = false
+	//
+	// cont = false
+	//
 
 	if err != nil && !cont {
 
@@ -172,6 +174,8 @@ func runCommand0(ctx context.Context,
 		envs = append(envs, env1)
 		env2, _ := templateString(`AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}`, ls)
 		envs = append(envs, env2)
+		env3, _ := templateString(`AWS_DEFAULT_OUTPUT=json`, ls)
+		envs = append(envs, env3)
 
 		r, err := runCmd(ctx, cmd, envs, output, silent, print, ri)
 		if err != nil {

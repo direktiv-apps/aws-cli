@@ -4,7 +4,7 @@ info:
   title: aws-cli
   version: "1.0"
   x-direktiv-meta:
-    container: gcr.io/direktiv/apps/aws-cli
+    container: direktiv.azurecr.io/functions/aws-cli
     maintainer: |-
       [direktiv.io](https://www.direktiv.io) 
     issues: https://github.com/direktiv-apps/aws-cli/issues
@@ -63,6 +63,7 @@ paths:
           in: body
           schema:
             type: object
+            required: ["access-key", "secret-key"]
             properties:
               access-key:
                 type: string
@@ -107,7 +108,7 @@ paths:
       x-direktiv-function: |-
         functions:
         - id: aws-cli
-          image: gcr.io/direktiv/apps/aws-cli:1.0
+          image: direktiv.azurecr.io/functions/aws-cli:1.0
           type: knative-workflow
       x-direktiv-examples:
         # ADD MORE EXAMPLES HERE
@@ -143,6 +144,7 @@ paths:
             - AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}
             - AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}
             - AWS_DEFAULT_REGION={{ default "us-east-1" .Body.Region }}
+            - AWS_DEFAULT_OUTPUT=json
         output: |
           {
             "aws-cli": {{ index . 0 | toJson }}

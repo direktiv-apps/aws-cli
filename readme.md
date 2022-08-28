@@ -5,7 +5,7 @@ Amazon Web Service (AWS) command line interface
 
 ---
 - #### Categories: cloud, build
-- #### Image: gcr.io/direktiv/apps/aws-cli 
+- #### Image: direktiv.azurecr.io/functions/aws-cli 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/aws-cli/issues
 - #### URL: https://github.com/direktiv-apps/aws-cli
@@ -24,7 +24,7 @@ This function provides AWS's CLI version 2.7.18 and is based on the official [AW
 ```yaml
 functions:
 - id: aws-cli
-  image: gcr.io/direktiv/apps/aws-cli:1.0
+  image: direktiv.azurecr.io/functions/aws-cli:1.0
   type: knative-workflow
 ```
    #### Basic
@@ -129,11 +129,11 @@ functions:
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| access-key | string| `string` |  | | AWS access key. | `ABCABCABCDABCABCABCD` |
+| access-key | string| `string` | ✓ | | AWS access key. | `ABCABCABCDABCABCABCD` |
 | commands | [][PostParamsBodyCommandsItems](#post-params-body-commands-items)| `[]*PostParamsBodyCommandsItems` |  | | Array of commands. |  |
 | files | [][DirektivFile](#direktiv-file)| `[]apps.DirektivFile` |  | | File to create before running commands. |  |
 | region | string| `string` |  | `"us-east-1"`| Region the commands should be executed in. | `eu-central-1` |
-| secret-key | string| `string` |  | | AWS secret key. | `Abcd45sa01234+ThIsIsSuPeRsEcReT` |
+| secret-key | string| `string` | ✓ | | AWS secret key. | `Abcd45sa01234+ThIsIsSuPeRsEcReT` |
 
 
 #### <span id="post-params-body-commands-items"></span> postParamsBodyCommandsItems

@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // PostParamsBody post params body
@@ -22,7 +23,8 @@ type PostParamsBody struct {
 
 	// AWS access key.
 	// Example: ABCABCABCDABCABCABCD
-	AccessKey string `json:"access-key,omitempty"`
+	// Required: true
+	AccessKey *string `json:"access-key"`
 
 	// Array of commands.
 	Commands []*PostParamsBodyCommandsItems `json:"commands"`
@@ -36,12 +38,17 @@ type PostParamsBody struct {
 
 	// AWS secret key.
 	// Example: Abcd45sa01234+ThIsIsSuPeRsEcReT
-	SecretKey string `json:"secret-key,omitempty"`
+	// Required: true
+	SecretKey *string `json:"secret-key"`
 }
 
 // Validate validates this post params body
 func (m *PostParamsBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateAccessKey(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCommands(formats); err != nil {
 		res = append(res, err)
@@ -51,9 +58,22 @@ func (m *PostParamsBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecretKey(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PostParamsBody) validateAccessKey(formats strfmt.Registry) error {
+
+	if err := validate.Required("access-key", "body", m.AccessKey); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -99,6 +119,15 @@ func (m *PostParamsBody) validateFiles(formats strfmt.Registry) error {
 			return err
 		}
 
+	}
+
+	return nil
+}
+
+func (m *PostParamsBody) validateSecretKey(formats strfmt.Registry) error {
+
+	if err := validate.Required("secret-key", "body", m.SecretKey); err != nil {
+		return err
 	}
 
 	return nil
