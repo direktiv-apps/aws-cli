@@ -17,7 +17,10 @@ Scenario: version
 	And header Direktiv-TempDir = '/tmp'
 	And request
 	"""
-	{
+	{	
+		"access-key": #(awsAccess),
+		"secret-key": #(awsSecret),
+		"awsRegion": #(awsRegion),
 		"commands": [
 		{
 			"command": "aws --version",
