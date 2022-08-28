@@ -2,7 +2,7 @@ url: ""
 functions:
 - type: knative-workflow
   id: aws-cli
-  image: gcr.io/direktiv/apps/aws-cli:test
+  image: direktiv.azurecr.io/functions/aws-cli:test
 states:
 - id: state0
   type: action
