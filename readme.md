@@ -5,7 +5,7 @@ Amazon Web Service (AWS) command line interface
 
 ---
 - #### Categories: cloud, build
-- #### Image: direktiv.azurecr.io/functions/aws-cli 
+- #### Image: gcr.io/direktiv/functions/aws-cli 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/aws-cli/issues
 - #### URL: https://github.com/direktiv-apps/aws-cli
@@ -24,7 +24,7 @@ This function provides AWS's CLI version 2.7.18 and is based on the official [AW
 ```yaml
 functions:
 - id: aws-cli
-  image: direktiv.azurecr.io/functions/aws-cli:1.0
+  image: gcr.io/direktiv/functions/aws-cli:1.0
   type: knative-workflow
 ```
    #### Basic

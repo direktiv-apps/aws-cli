@@ -37,7 +37,7 @@ func init() {
         "cloud",
         "build"
       ],
-      "container": "direktiv.azurecr.io/functions/aws-cli",
+      "container": "gcr.io/direktiv/functions/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
@@ -212,7 +212,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: direktiv.azurecr.io/functions/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/functions/aws-cli:1.0\n  type: knative-workflow",
         "x-direktiv-secrets": [
           {
             "description": "AWS access key (IAM)",
@@ -295,7 +295,7 @@ func init() {
         "cloud",
         "build"
       ],
-      "container": "direktiv.azurecr.io/functions/aws-cli",
+      "container": "gcr.io/direktiv/functions/aws-cli",
       "issues": "https://github.com/direktiv-apps/aws-cli/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:\n- wget\n- git\n- curl",
@@ -393,7 +393,7 @@ func init() {
             "title": "Basic"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: direktiv.azurecr.io/functions/aws-cli:1.0\n  type: knative-workflow",
+        "x-direktiv-function": "functions:\n- id: aws-cli\n  image: gcr.io/direktiv/functions/aws-cli:1.0\n  type: knative-workflow",
         "x-direktiv-secrets": [
           {
             "description": "AWS access key (IAM)",

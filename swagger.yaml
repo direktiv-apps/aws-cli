@@ -4,7 +4,7 @@ info:
   title: aws-cli
   version: "1.0"
   x-direktiv-meta:
-    container: direktiv.azurecr.io/functions/aws-cli
+    container: gcr.io/direktiv/functions/aws-cli
     maintainer: |-
       [direktiv.io](https://www.direktiv.io) 
     issues: https://github.com/direktiv-apps/aws-cli/issues
@@ -108,7 +108,7 @@ paths:
       x-direktiv-function: |-
         functions:
         - id: aws-cli
-          image: direktiv.azurecr.io/functions/aws-cli:1.0
+          image: gcr.io/direktiv/functions/aws-cli:1.0
           type: knative-workflow
       x-direktiv-examples:
         # ADD MORE EXAMPLES HERE
