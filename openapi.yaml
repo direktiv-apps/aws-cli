@@ -1,0 +1,191 @@
+openapi: 3.0.1
+info:
+  title: aws-cli
+  description: Amazon Web Service (AWS) command line interface
+  version: "1.0"
+  x-direktiv-meta:
+    container: gcr.io/direktiv/functions/aws-cli
+    maintainer: "[direktiv.io](https://www.direktiv.io) "
+    issues: https://github.com/direktiv-apps/aws-cli/issues
+    url: https://github.com/direktiv-apps/aws-cli
+    categories:
+    - cloud
+    - build
+    license: "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)"
+    long-description: |-
+      This function provides AWS's CLI version 2.7.18 and is based on the official [AWS CLI image](https://hub.docker.com/r/amazon/aws-cli) on Docker Hub.  The following additional packages are installed:
+      - wget
+      - git
+      - curl
+servers:
+- url: /
+paths:
+  /:
+    post:
+      parameters:
+      - name: Direktiv-ActionID
+        in: header
+        description: "direktiv action id is an UUID. \nFor development it can be set\
+          \ to 'development'\n"
+        schema:
+          type: string
+          default: development
+      - name: Direktiv-TempDir
+        in: header
+        description: |
+          direktiv temp dir is the working directory for that request
+          For development it can be set to e.g. '/tmp'
+        schema:
+          type: string
+          default: /tmp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - access-key
+              - secret-key
+              type: object
+              properties:
+                access-key:
+                  type: string
+                  description: AWS access key.
+                  example: ABCABCABCDABCABCABCD
+                secret-key:
+                  type: string
+                  description: AWS secret key.
+                  example: Abcd45sa01234+ThIsIsSuPeRsEcReT
+                region:
+                  type: string
+                  description: Region the commands should be executed in.
+                  example: eu-central-1
+                  default: us-east-1
+                files:
+                  type: array
+                  description: File to create before running commands.
+                  items:
+                    $ref: '#/components/schemas/direktivFile'
+                commands:
+                  type: array
+                  description: Array of commands.
+                  items:
+                    type: object
+                    properties:
+                      command:
+                        type: string
+                        description: Command to run
+                        example: aws --version
+                      silent:
+                        type: boolean
+                        description: If set to false the command will not print output
+                          to logs.
+                        default: false
+                      print:
+                        type: boolean
+                        description: If set to false the command will not print the
+                          full command with arguments to logs.
+                        default: true
+                      continue:
+                        type: boolean
+                        description: "Stops excecution if command fails, otherwise\
+                          \ proceeds with next command"
+        required: false
+      responses:
+        "200":
+          description: List of executed commands.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  aws-cli:
+                    type: array
+                    items:
+                      required:
+                      - result
+                      - success
+                      type: object
+                      properties:
+                        success:
+                          type: boolean
+                        result:
+                          type: object
+            aws-cli:
+              example:
+              - result: VTQ3U....c2ZaN0FJaldjVnkra2tKV==
+                success: true
+              - result: exit status 254
+                success: false
+        default:
+          description: generic error response
+          headers:
+            Direktiv-ErrorMessage:
+              schema:
+                type: string
+            Direktiv-ErrorCode:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      x-direktiv-function: |-
+        functions:
+        - id: aws-cli
+          image: gcr.io/direktiv/functions/aws-cli:1.0
+          type: knative-workflow
+      x-direktiv-examples:
+      - title: Basic
+        content: "- id: aws-cli\n  type: action\n  action:\n    function: aws-cli\n\
+          \    secrets: [\"awsAccess\", \"awsSecret\", \"awsRegion\"]\n    input:\
+          \ \n      access-key: jq(.secrets.awsAccess)\n      secret-key: jq(.secrets.awsSecret)\n\
+          \      region: jq(.secrets.awsRegion)\n      commands:\n      - command:\
+          \ aws ec2 describe-instances"
+      x-direktiv-secrets:
+      - name: awsAccess
+        description: AWS access key (IAM)
+      - name: awsSecret
+        description: AWS secret key (IAM)
+      - name: awsRegion
+        description: AWS region where the commands run
+      x-direktiv:
+        cmds:
+        - action: foreach
+          loop: .Commands
+          exec: "{{ .Item.Command }}"
+          silent: "{{ .Item.Silent }}"
+          print: "{{ .Item.Print }}"
+          continue: "{{ .Item.Continue }}"
+          env:
+          - "AWS_ACCESS_KEY_ID={{ .Body.AccessKey }}"
+          - "AWS_SECRET_ACCESS_KEY={{ .Body.SecretKey }}"
+          - "AWS_DEFAULT_REGION={{ default \"us-east-1\" .Body.Region }}"
+          - AWS_DEFAULT_OUTPUT=json
+        output: |
+          {
+            "aws-cli": {{ index . 0 | toJson }}
+          }
+      x-direktiv-errors:
+        io.direktiv.command.error: Command execution failed
+        io.direktiv.output.error: Template error for output generation of the service
+        io.direktiv.ri.error: Can not create information object from request
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    direktivFile:
+      type: object
+      x-go-type:
+        type: DirektivFile
+        import:
+          package: github.com/direktiv/apps/go/pkg/apps
+    error:
+      required:
+      - errorCode
+      - errorMessage
+      type: object
+      properties:
+        errorCode:
+          type: string
+        errorMessage:
+          type: string
+
